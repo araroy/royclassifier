@@ -8,4 +8,4 @@ openai>=0.27.0           # OpenAI API integration
 matplotlib>=3.5.0        # Visualization library compatible with Python 3.11
 tqdm>=4.60.0             # Progress bar utility
 openpyxl>=3.0.9          # Excel file handling library
-pillow>=10.0.0           # Image processing library compatible with Python 3.11
+pillow>=9.5.0,<10.0.0    # Ensure compatibility with Streamlit
