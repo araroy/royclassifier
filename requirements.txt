@@ -2,10 +2,10 @@ pip>=24.3.1              # Ensures the latest pip for Python 3.11
 setuptools>=65.0         # Required for modern package installations
 wheel>=0.41.0            # Required for building many Python packages
 
-streamlit==1.25.0        # Streamlit version compatible with Python 3.11
+streamlit>=1.26.0        # Update Streamlit to ensure compatibility with Pillow 11
 pandas>=1.5.0            # Pandas version supporting Python 3.11
 openai>=0.27.0           # OpenAI API integration
 matplotlib>=3.5.0        # Visualization library compatible with Python 3.11
 tqdm>=4.60.0             # Progress bar utility
 openpyxl>=3.0.9          # Excel file handling library
-pillow>=9.5.0,<10.0.0    # Ensure compatibility with Streamlit
+pillow==11.0.0           # Latest version of Pillow
