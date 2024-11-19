@@ -3,17 +3,15 @@ import openai
 import os
 import time
 from tqdm import tqdm
-from pathlib import Path
+import streamlit as st  # Optional, if used with Streamlit
 
-from utils import set_openai_key
-
-# Set the API key
-set_openai_key()
-
-if api_key:
-    print("API Key loaded successfully.")
-else:
-    print("API Key not found. Please set the OPENAI_API_KEY environment variable.")
+def set_openai_key():
+    """
+    Fetch and set the OpenAI API key from Streamlit secrets or environment variables.
+    """
+    openai.api_key = st.secrets.get("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY")
+    if not openai.api_key:
+        raise ValueError("OpenAI API Key not found. Please add it to Streamlit secrets or set the OPENAI_API_KEY environment variable.")
 
 def classify_text(prompt, text):
     """
@@ -29,9 +27,9 @@ def classify_text(prompt, text):
             messages=messages
         )
         label = response.choices[0].message.content.strip()
-        return label
+        return label if label else "Error"
     except Exception as e:
-        return "Error"
+        return f"Error: {e}"
 
 def classify_dataset(data, column_to_classify, classification_prompt, batch_size=100):
     """
@@ -45,12 +43,18 @@ def classify_dataset(data, column_to_classify, classification_prompt, batch_size
     total_rows = len(data)
 
     labels = []
-    for i in tqdm(range(0, total_rows, batch_size), desc=f"Classifying"):
+    for i in tqdm(range(0, total_rows, batch_size), desc="Classifying"):
         batch = data[column_to_classify][i:i + batch_size].tolist()
-        batch_labels = [classify_text(classification_prompt, text) for text in batch]
-        labels.extend(batch_labels)
-        time.sleep(1)  # Rate limit
+        try:
+            batch_labels = [classify_text(classification_prompt, text) for text in batch]
+            labels.extend(batch_labels)
+        except Exception as e:
+            labels.extend(["Error"] * len(batch))
+            print(f"Batch {i} failed: {e}")
+        
+        time.sleep(2)  # Introduce a longer delay after each batch
 
+    # Final check for length mismatch
     if len(labels) != total_rows:
         labels.extend(["Error"] * (total_rows - len(labels)))
 
