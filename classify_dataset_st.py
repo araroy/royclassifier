@@ -5,8 +5,15 @@ import time
 from tqdm import tqdm
 from pathlib import Path
 
-# Set OpenAI API key
-openai.api_key = os.getenv("OPENAI_API_KEY")  # Ensure your API key is set
+from utils import set_openai_key
+
+# Set the API key
+set_openai_key()
+
+if api_key:
+    print("API Key loaded successfully.")
+else:
+    print("API Key not found. Please set the OPENAI_API_KEY environment variable.")
 
 def classify_text(prompt, text):
     """
