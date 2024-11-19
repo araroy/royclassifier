@@ -22,11 +22,12 @@ def classify_text(prompt, text):
         {"role": "user", "content": f"Text: {text}"}
     ]
     try:
-        response = openai.Chat.create(
+        response = openai.chatcompletion.create(
             model="gpt-3.5-turbo",
             messages=messages
         )
-        label = response.choices[0].message.content.strip()
+        label = response.choices[0].message.content
+
         return label if label else "Error"
     except Exception as e:
         return f"Error: {e}"
