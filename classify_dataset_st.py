@@ -22,7 +22,7 @@ def classify_text(prompt, text):
         {"role": "user", "content": f"Text: {text}"}
     ]
     try:
-        response = openai.ChatCompletion.create(
+        response = openai.Chat.create(
             model="gpt-3.5-turbo",
             messages=messages
         )
