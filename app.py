@@ -1,8 +1,7 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
 from io import BytesIO
-from classify_dataset_st import classify_dataset  # Ensure this function is correctly implemented
+from classify_dataset_st import classify_dataset, set_openai_client
 
 # Title and Description
 st.title("Text Classification and Visualization Portal")
@@ -43,12 +42,13 @@ if uploaded_file:
     if st.button("Run Classification"):
         st.info("Running classification...this might take some time.")
         try:
-            # Debugging values
-            st.write(f"Debug: Column to classify = {column_to_classify}")
-            st.write(f"Debug: Classification prompt = {classification_prompt}")
+            # Initialize OpenAI client
+            api_key = st.secrets["OPENAI_API_KEY"]
+            client = set_openai_client(api_key)
 
-            # Call classify_dataset with correct parameters
+            # Run classification
             classified_data = classify_dataset(
+                client=client,
                 data=df,
                 column_to_classify=column_to_classify,
                 classification_prompt=classification_prompt
@@ -69,23 +69,6 @@ if uploaded_file:
                 file_name="classified_results.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
-
-            # Visualization
-            st.markdown("### Visualizations")
-            if 'Label' not in classified_data.columns:
-                st.error("The classification process did not generate a 'Label' column. Please check the classifier.")
-                st.stop()
-
-            label_counts = classified_data['Label'].value_counts()
-
-            # Bar Chart for Label Distribution
-            st.markdown("**Label Distribution**")
-            fig, ax = plt.subplots()
-            label_counts.plot(kind='bar', color='skyblue', ax=ax)
-            ax.set_title("Distribution of Labels")
-            ax.set_xlabel("Labels")
-            ax.set_ylabel("Count")
-            st.pyplot(fig)
 
         except Exception as e:
             st.error(f"An error occurred: {e}")
