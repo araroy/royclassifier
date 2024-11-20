@@ -51,7 +51,8 @@ if uploaded_file:
         st.info("Running classification...this might take some time.")
         try:
             # Initialize OpenAI client
-            api_key = st.secrets["OPENAI_API_KEY"]
+            #api_key = st.secrets["OPENAI_API_KEY"]
+            api_key = st.secrets.get("OPENAI_API_KEY").strip()
             client = set_openai_client(api_key)
             logging.debug("OpenAI client initialized successfully.")
 
