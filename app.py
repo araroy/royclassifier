@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 from io import BytesIO
-from classify_dataset_st import classify_dataset  # Replace with the actual script/module name
+from classify_dataset_st import classify_dataset  # Ensure this function is correctly implemented
 
 # Title and Description
 st.title("Text Classification and Visualization Portal")
@@ -14,13 +14,19 @@ Upload an Excel file, classify text, and visualize the results.
 uploaded_file = st.file_uploader("Upload your Excel file", type=["xlsx"])
 
 if uploaded_file:
-    # Load dataset
-    df = pd.read_excel(uploaded_file)
-    st.write("Preview of Uploaded Data:")
-    st.write(df.head())
+    try:
+        df = pd.read_excel(uploaded_file)
+        st.write("Preview of Uploaded Data:")
+        st.write(df.head())
+    except Exception as e:
+        st.error(f"Error reading the file: {e}")
+        st.stop()
 
     # Column selection
     column_to_classify = st.selectbox("Select the column to classify", options=df.columns)
+    if not pd.api.types.is_string_dtype(df[column_to_classify]):
+        st.error("The selected column is not a text column. Please select a valid text column.")
+        st.stop()
 
     # Classification prompt
     classification_prompt = st.text_area(
@@ -30,11 +36,23 @@ if uploaded_file:
         "2. Participant: all other reviews."
     )
 
+    if not classification_prompt.strip():
+        st.error("Please provide a valid classification prompt.")
+        st.stop()
+
     if st.button("Run Classification"):
-        # Run the classification
         st.info("Running classification...this might take some time.")
         try:
-            classified_data = classify_dataset(df, column_to_classify, classification_prompt)
+            # Debugging values
+            st.write(f"Debug: Column to classify = {column_to_classify}")
+            st.write(f"Debug: Classification prompt = {classification_prompt}")
+
+            # Call classify_dataset with correct parameters
+            classified_data = classify_dataset(
+                data=df,
+                column_to_classify=column_to_classify,
+                classification_prompt=classification_prompt
+            )
             st.success("Classification completed successfully!")
 
             # Display classified data
@@ -44,6 +62,7 @@ if uploaded_file:
             # Download option
             output = BytesIO()
             classified_data.to_excel(output, index=False, engine='openpyxl')
+            output.seek(0)
             st.download_button(
                 label="Download Classified Data",
                 data=output.getvalue(),
@@ -53,6 +72,10 @@ if uploaded_file:
 
             # Visualization
             st.markdown("### Visualizations")
+            if 'Label' not in classified_data.columns:
+                st.error("The classification process did not generate a 'Label' column. Please check the classifier.")
+                st.stop()
+
             label_counts = classified_data['Label'].value_counts()
 
             # Bar Chart for Label Distribution
