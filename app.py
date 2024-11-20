@@ -65,7 +65,7 @@ if uploaded_file:
                 st.success(f"API Key is accessible: {api_key[:5]}...********")
             # Test API connection
             try:
-                test_response = client.ChatCompletion.create(
+                test_response = client.chat.completions.create(
                     model="gpt-3.5-turbo",
                     messages=[
                         {"role": "system", "content": "You are a helpful assistant."},
