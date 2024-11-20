@@ -2,6 +2,11 @@ import streamlit as st
 import pandas as pd
 from io import BytesIO
 from classify_dataset_st import classify_dataset, set_openai_client
+import logging  # For debugging
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
+logging.debug("Application started...")
 
 # Title and Description
 st.title("Text Classification and Visualization Portal")
@@ -19,12 +24,14 @@ if uploaded_file:
         st.write(df.head())
     except Exception as e:
         st.error(f"Error reading the file: {e}")
+        logging.error(f"Error reading the file: {e}")
         st.stop()
 
     # Column selection
     column_to_classify = st.selectbox("Select the column to classify", options=df.columns)
     if not pd.api.types.is_string_dtype(df[column_to_classify]):
         st.error("The selected column is not a text column. Please select a valid text column.")
+        logging.error("Selected column is not a valid text column.")
         st.stop()
 
     # Classification prompt
@@ -37,6 +44,7 @@ if uploaded_file:
 
     if not classification_prompt.strip():
         st.error("Please provide a valid classification prompt.")
+        logging.error("Classification prompt is empty.")
         st.stop()
 
     if st.button("Run Classification"):
@@ -45,12 +53,31 @@ if uploaded_file:
             # Initialize OpenAI client
             api_key = st.secrets["OPENAI_API_KEY"]
             client = set_openai_client(api_key)
+            logging.debug("OpenAI client initialized successfully.")
+
             # Check if the API key is accessible
             if not api_key:
                 st.error("API Key not found. Please add your OpenAI API key to Streamlit secrets.")
+                logging.error("API Key not found in Streamlit secrets.")
+
             else:
             # Mask most of the API key for security reasons and display the result
                 st.success(f"API Key is accessible: {api_key[:5]}...********")
+            # Test API connection
+            try:
+                test_response = client.ChatCompletion.create(
+                    model="gpt-3.5-turbo",
+                    messages=[
+                        {"role": "system", "content": "You are a helpful assistant."},
+                        {"role": "user", "content": "Test connection"}
+                    ]
+                )
+                logging.debug(f"OpenAI test connection successful: {test_response}")
+                st.success("OpenAI API connection verified successfully!")
+            except Exception as api_test_error:
+                st.error(f"Failed to verify OpenAI API connection: {api_test_error}")
+                logging.error(f"API connection failed: {api_test_error}")
+                st.stop()
 
             # Run classification
             classified_data = classify_dataset(
@@ -60,6 +87,7 @@ if uploaded_file:
                 classification_prompt=classification_prompt
             )
             st.success("Classification completed successfully!")
+            logging.debug("Classification completed successfully.")
 
             # Display classified data
             st.write("Classified Data:")
@@ -78,3 +106,5 @@ if uploaded_file:
 
         except Exception as e:
             st.error(f"An error occurred: {e}")
+            logging.error(f"An error occurred during classification: {e}")
+
