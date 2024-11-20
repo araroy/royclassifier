@@ -22,7 +22,7 @@ def classify_text(client, prompt, text):
     except Exception as e:
         return f"Error: {e}"
 
-def classify_dataset(client, data, column_to_classify, classification_prompt, batch_size=100):
+def classify_dataset(client, data, column_to_classify, classification_prompt, batch_size=10):
     if column_to_classify not in data.columns:
         raise ValueError(f"Column '{column_to_classify}' not found in the dataset.")
 
@@ -49,7 +49,7 @@ if uploaded_file:
     st.write(data.head())
 
     column_to_classify = st.selectbox("Select the column to classify", data.columns)
-    classification_prompt = st.text_area("Enter the classification prompt", "Classify this text as positive, neutral, or negative.")
+    classification_prompt = st.text_area("Enter the classification prompt", "Classify this text as decision-maker or participant based on if the writer has made any decision.")
 
     if st.button("Run Classification"):
         try:
