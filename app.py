@@ -46,11 +46,11 @@ if uploaded_file:
             api_key = st.secrets["OPENAI_API_KEY"]
             client = set_openai_client(api_key)
             # Check if the API key is accessible
-    if not api_key:
-    st.error("API Key not found. Please add your OpenAI API key to Streamlit secrets.")
-    else:
-    # Mask most of the API key for security reasons and display the result
-    st.success(f"API Key is accessible: {api_key[:5]}...********")
+            if not api_key:
+                st.error("API Key not found. Please add your OpenAI API key to Streamlit secrets.")
+            else:
+            # Mask most of the API key for security reasons and display the result
+                st.success(f"API Key is accessible: {api_key[:5]}...********")
 
             # Run classification
             classified_data = classify_dataset(
